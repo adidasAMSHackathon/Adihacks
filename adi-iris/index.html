@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="page.css">
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Adidas</title>
+</head>
+
+<body class="outercontainer">
+    <script src="build/webgazer.js"></script>
+    <div id="asd2" style="background: blue; width: 10px; height: 10px; position: absolute;"></div>
+
+    <a class="adidasbutton" href="https://www.adidas.com/us/men"></a>
+    <img class="navbar" src="topbar.png" />
+
+    <div class="container">
+        <img class="new" src="new.png" />
+        <div class="tl fullsizeleftbot"></div>
+        <div class="tl fullsizerightbot"></div>
+        <div class="tl fullsizeright"></div>
+        <div class="tl fullsizeleft"></div>
+        <img class="footer" src="footer.png" />
+    </div>
+
+</body>
+
+<script type="text/javascript">
+
+    imgMap = {};
+
+    const TIME = 800;
+    var stack = [];
+    const MAX_SIZE = TIME / 30;
+    var avgX = 0;
+    var avgY = 0;
+
+    webgazer.setRegression('ridge').setTracker('clmtrackr');
+
+    webgazer.setGazeListener(function (data, elapsedTime) {
+        if (data == null) {
+            return;
+        }
+        stack.push(data);
+        avgX += data.x / MAX_SIZE;
+        avgY += data.y / MAX_SIZE;
+        if (stack.length > MAX_SIZE) {
+            var d = stack.shift();
+            avgX -= d.x / MAX_SIZE;
+            avgY -= d.y / MAX_SIZE;
+        }
+
+        // var Xs = stack.map(function (data) { return data.x });
+        // var Ys = stack.map(function (data) { return data.y });
+        // avgX = average(Xs);
+        // avgY = average(Ys);
+        // console.log("Xs :" + avgX);
+        // console.log("Ys :" + avgY);
+        var target = document.elementFromPoint(avgX, avgY);
+        if (target && target.classList.contains("tl") && !$(target).hasClass("active")) {
+            $(target).toggleClass("active");
+        }
+
+        $(".tl").each(function () {
+            if (this.classList.contains("active")) {
+                // console.log(this);
+            }
+            if (this.classList.contains("active") && target !== this) {
+                // console.log("asd");
+                $(this).removeClass("active");
+            }
+        });
+
+        var div = document.getElementById("asd2");
+        div.style.left = avgX + "px";
+        div.style.top = avgY + "px";
+
+        // div.setAttribute('style', div.getAttribute('style')+'; top: ' + average(Xs) + "px");
+        // div.setAttribute('style', div.getAttribute('style')+'; left: ' + average(Ys) + "px");
+        var xprediction = data.x; //these x coordinates are relative to the viewport 
+        var yprediction = data.y; //these y coordinates are relative to the viewport
+
+        // console.log("X: " + xprediction + " Y: " + yprediction); //elapsed time is based on time since begin was called
+        // console.log(elapsedTime);
+    }).showPredictionPoints(true).begin();
+
+    const setup = function () {
+        document.getElementById("webgazerVideoFeed").style = "top: 10px; right: 10px; position: fixed; display: block; width: 250px; height: 250px;"
+        webgazer.showPredictionPoints(false);
+        document.getElementById("asd2").style.display = "none";
+    }
+
+    const unsetup = function () {
+        document.getElementById("webgazerVideoFeed").style = "top: 10px; right: 10px; position: fixed; display: none;"
+        webgazer.showPredictionPoints(true);
+        document.getElementById("asd2").style.display = "block";
+    }
+
+    const showCamera = function () {
+        document.getElementById("webgazerVideoFeed").style = "top: 10px; right: 10px; position: fixed; display: block; width: 250px; height: 250px;"
+
+    }
+
+    const hideCamera = function () {
+        document.getElementById("webgazerVideoFeed").style = "top: 10px; right: 10px; position: fixed; display: none;"
+    }
+
+    const showPoints = function () {
+        webgazer.showPredictionPoints(false);
+        document.getElementById("asd2").style.display = "block";
+    }
+
+    const hidePoints = function () {
+        webgazer.showPredictionPoints(false);
+        document.getElementById("asd2").style.display = "none";
+    }
+</script>
+
+</html>
